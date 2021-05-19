@@ -23,4 +23,28 @@ Used to terraform to provision the EC2 instance with respecitve volume storage a
 main.tf --> contains complete  aws resouce creation logic
 provider.tf --> Contain the IAM user creds to allow terraform to login AWS and do operations. 
 
+** Terraform to create EC2 instance as well as taking image out of the EC2 instance created **
 
+   - In terraform we have Resource: aws_ami_from_instance which used to create images out of ec2 instances.When applied to an instance that is running, the instance will be stopped before taking the snapshots and then started back up again, resulting in a period of downtime.
+
+Source : https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ami_from_instance
+    
+   main_with_image_creation.tf  : 
+            This will take the instance id after the ec2-intanse created and pass it to local variable and that local variable will override to output in-order to use with source_instance_id.
+   e.g :
+   output "instance_id" {
+  description = "ID of the EC2 instance"
+  value       = aws_instance.Plusnet-Test.id
+}
+
+locals {
+  instanceid =  aws_instance.Plusnet-Test.id
+}
+
+output "instanceid" {
+  value = local.instanceid
+}
+resource "aws_ami_from_instance" "plusnet_M"{
+       name = "AMI_Test"
+       source_instance_id  = local.instanceid
+   }
